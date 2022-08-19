@@ -71,7 +71,7 @@ at_19 = 'at 19'
 encounter_times = {
 "Froggit": 368, #link's run
 "Whimsun": 104 ,#link's run
-"1x Moldsmall": 420, #Approximation
+"1x Moldsmall": 369, #TGH's 1:05:37
 "2x Moldsmall": 840, #Approximation
 "3x Moldsmall": 1319, # link's run
 "Froggit Whimsun": 520, # link's run
