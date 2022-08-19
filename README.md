@@ -1,2 +1,2 @@
 # UT-GenoRNGSimulator
-Simulate genocide RNG and output speedrun times
+Simulate genocide RNG and output speedrun times for Undertale.
