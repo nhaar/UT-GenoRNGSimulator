@@ -4,7 +4,7 @@ from math import floor
 def roundrandom(x):
     return round(random()*x)
 
-setsteps_rng = 1 # from 0 to 1, floats
+setsteps_rng = 0.5 # from 0 to 1, floats
 
 def scr_steps(argument0, argument1, argument2):
     global kills
@@ -29,18 +29,18 @@ def second_half_encounter():
     elif probability < 0.5:
         return "1x Moldsmall"
     elif probability < 0.75:
-        return "2x Moldsmall"
+        return "3x Moldsmall"
     elif probability < 0.9:
-        return "Froggit Whimsun"
-    else:
         return "2x Froggit"
+    else:
+        return "2x Moldsmall"
 
 def frogskip():
     probability = random()
     if probability < 0.405:
         return 1
     else:
-        return 1
+        return 0
 
 def framesToMinutes(x):
     seconds = x/30
@@ -102,7 +102,7 @@ successful_attempts = 0
 lowest_time = 20*60*30
 highest_time = 0
 
-while total_attempts < 10000:
+while total_attempts < 100000:
     total_steps = 0
     encountereds = []
     total_time = 0
