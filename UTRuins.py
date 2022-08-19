@@ -3,7 +3,7 @@ from math import floor
 
 
 # NUMBER OF SIMULATIONS
-simulations = 100000
+simulations = 1000000
 
 def roundrandom(x): # Simulate Toby's usage of round(random()) in gamemaker
     return round(random()*x)
@@ -155,7 +155,7 @@ jerry_kill = 969 # If you need to kill jerry, the extra time taken
 encountering_time = 52 # Time you get notified and start battle
 
 total_attempts = 0 # Keep track of simulation number
-desired_treshold = 22*60*30 # To calculate the probability of the treshold you want, by default I put 10 minutes here
+desired_treshold = (22*60+30)*30 # To calculate the probability of the treshold you want, by default I put 10 minutes here
 successful_attempts = 0 # Runs that beat the treshold above
 
 
@@ -257,8 +257,8 @@ while total_attempts < simulations:
             if kills == 14:
                 kills += 1
                 snowdin_time += jerry_kill
+    snowdin_time += snowdin_execution
     all_encountereds["Snowdin"] = encountereds
-    ruins_time = 0
     total_time = ruins_time + snowdin_time
     if total_time < desired_treshold:
         successful_attempts += 1
