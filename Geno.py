@@ -65,6 +65,23 @@ def waterfall_grind():
     else:
         return "Temmie"
 
+def core_encounterer():
+    probability = random()
+    if probability < 0.1333:
+        return "Final Froggit Astigmatism"
+    elif probability < 0.3333:
+        return "Whimsalot Final Froggit"
+    elif probability < 0.5333:
+        return "Whimsalot Astigmatism"
+    elif probability < 0.7333:
+        return "Knight Knight Madjick"
+    elif probability < 0.8666:
+        return "Core Triple"
+    elif probability < 0.9333:
+        return "Knight Knight"
+    else:
+        return "Madjick"
+
 def frogskip(): # Rolls for frogskip and returns 1 if you get it, 0 if not (this result is used as an integer)
     probability = random()
     if probability < 0.405:
@@ -138,7 +155,19 @@ encounter_times = {
 "Woshua Aaron Scripted": 648,
 "Temmie": 108,
 "Woshua Moldbygg": 430 ,
-"Sus Mold" : 253
+"Sus Mold" : 253,
+#
+# CORE ENCOUNTERS
+#
+#
+"Whimsalot Astigmatism": 430,
+"Final Froggit Astigmatism": 431,
+"Knight Knight Madjick": 435,
+"Knight Knight": 150,
+"Whimsalot Final Froggit": 433,
+"Core Triple": 714,
+"Madjick": 150,
+"Astigmatism": 150
     }
 
 # These are the execution times, all adjusted from link's 1:03:38
@@ -183,6 +212,17 @@ shoes_segment = 756 # gaing movement post moldsmall battle, equip shoes, leave r
 up_to_grind = 7377 # from touching the room transition into onion sans ---- gaining movement in the room with scritped temmie
 post_grind = 8739 # touching room transition OUT OF CRYSTAL MAZE ---- Touching room transition outside of Undyne battle (quick kill segment)
 
+# HOTLAND TIMES
+#--- (check the code above core)
+
+# CORE TIMES
+core_start = 840
+walk_to_near_warriors = 96
+warriors_path = 2311 # From exitting final encounter before warriors path to gaining movement in the room you can grind AFTER warriors path
+exit_warriors_path_nobody_came = 471 # Gaining movement in the last room you can grind (coming back) --- Touching the door trigger to enter room with savepoint (INCLUDES BUT NOBODY CAME TIMES
+walk_back_no_nobody_came = 143 # Gaining movement in the last room you can grind (coming back) --- Gaining movement in core bridge ( NO NOBODY CAMES IN HERE)
+core_end = 874
+
 # Transition times are a measurement of: Room transition + encountering animation
 
 first_half_transition = 70
@@ -190,6 +230,8 @@ second_half_transition = 70
 snowdin_right_side_transition = 31
 snowdin_left_side_transition = 26
 waterfall_transition = 10
+core_transition = 20
+
 
 frog_skip_save = 91 # How many frames running into the frog saves, comapared it from link's 1:03:38
 greater_dog_fight = 483 # The fight with no dog skips
@@ -197,11 +239,15 @@ dog_skip_save = 74 #Greater Dog's attack time save
 jerry_kill = 969 # If you need to kill jerry, the extra time taken
 encountering_time = 52 # Time you get notified and start battle
 
+double_flee = 10 * 30
+triple_flee_double = 10 * 30
+triple_flee_single =  20 * 30
+
 mushroom_maze_steps = 348
 dark_crystal_steps = 642
 
 total_attempts = 0 # Keep track of simulation number
-desired_treshold = (22*60)*30 # To calculate the probability of the treshold you want, by default I put 10 minutes here
+desired_treshold = ((1*60+4)*60)*30 # To calculate the probability of the treshold you want, by default I put 10 minutes here
 successful_attempts = 0 # Runs that beat the treshold above
 
 
@@ -391,24 +437,115 @@ while total_attempts < simulations:
             else:
                 kills += 2
             waterfall_time += encounter_times[encounter]
+            if (kills - 2) == 17 and encounter != 'Temmie':
+                waterfall_time -= double_flee
     waterfall_time += post_grind
     all_encountereds['Waterfall'] = encountereds
-    ruins_time = 0
-    snowdin_time = 0
-    total_time = ruins_time + snowdin_time + waterfall_time
+    #
+    hotland_time = 7161 # touching leaving undyne door  --- touch leaving muffet door
+    #
+    # CORE CODE
+    #
+    #
+    core_time = 0
+    kills = 5
+    core_time += core_start
+    encountereds = []
+    #
+    near_elevator = True
+    near_warriors = False
+    warriors_kills = 0
+    while kills < 40:
+        if kills < 14:
+            steps = scr_steps(70, 50, 40)
+            if kills == 5: # Special case because just got here
+                core_time += steps + encountering_time + encounter_times["Astigmatism"]
+                kills = 6
+            else:
+                if kills == 6:
+                    encounter = "Whimsalot Final Froggit"
+                    kills = 8
+                elif kills == 8:
+                    encounter = "Whimsalot Astigmatism"
+                    kills = 10
+                elif kills == 10:
+                    encounter = "Final Froggit Astigmatism"
+                    kills = 12
+                elif kills == 12:
+                    encounter == "Knight Knight Madjick"
+                    kills = 14
+                core_time += core_transition + steps + encountering_time + encounter_times[encounter]
+        elif kills < 32 or kills == 39:
+            if kills > 26:
+                if near_elevator:
+                    near_elevator = False
+                else:
+                    if not near_warriors:
+                        near_warrios = True
+                        core_time += walk_to_near_warriors - core_transition # Remove core_transition cuz its meaningless
+            elif kills == 39:
+                core_time += walk_back_no_nobody_came - core_transition
+            steps = scr_steps(70, 50, 40)
+            encounter = core_encounterer()
+            core_time += core_transition + steps + encountering_time + encounter_times[encounter]
+            if encounter == "Madjick" or encounter == "Knight Knight":
+                kills += 1
+            elif encounter == "Core Triple":
+                if kills == 39:
+                    core_time -= triple_flee_single
+                if kills == 31:
+                    core_time -= triple_flee_double
+                kills += 3
+            else:
+                if kills == 39:
+                    core_time -= double_flee
+                kills += 2
+            encountereds.append(encounter)
+        elif kills >= 32:
+            if warriors_kills == 0:
+                core_time += warriors_path
+                kills += 7
+                if kills == 40:
+                    core_time += exit_warriors_path_nobody_came
+    core_time += core_end
+    all_encountereds["Core"] = encountereds
+    #
+    new_home_time = 20473 # Exit mettaton room (touch door) --- exit sans hallway
+    chara_time = 5004 # Exit sans hallway -- End run
+    #
+    total_time = ruins_time + snowdin_time + waterfall_time + hotland_time + core_time +new_home_time + chara_time
     if total_time < desired_treshold:
         successful_attempts += 1
     if total_time < lowest_time:
         lowest_time = total_time
         lowest_seed = all_encountereds
+        fast_ruins = ruins_time
+        fast_waterfall = waterfall_time
+        fast_snowdin = snowdin_time
+        fast_core = core_time
     elif total_time > highest_time:
         highest_time = total_time
         highest_seed = all_encountereds
     
 # Results
 
-print(framesToMinutes(lowest_time))
-print(framesToMinutes(highest_time))
-print(successful_attempts/total_attempts)
-print(lowest_seed)
-print(highest_seed)
+print('------------', simulations, ' runs results', '------------')
+print('Fatest Time:', framesToMinutes(lowest_time))
+print('Slowest Time:', framesToMinutes(highest_time))
+print('Percentage of runs below', framesToMinutes(desired_treshold),'=', str((successful_attempts/total_attempts) * 100) + "%")
+for x in [lowest_seed, highest_seed]:
+    if x == lowest_seed:
+        print('Encounters for the fastest time\n')
+    else:
+        print('Encounters for the slowest time\n')
+    for y in ['Ruins', 'Snowdin', 'Waterfall', 'Core']:
+        these_encounters = x[y]
+        string_encounters = ''
+        for z in these_encounters:
+            string_encounters += z + ', '
+        string_encounters = string_encounters[:-2]
+        print(y, '        ', string_encounters)
+print(framesToMinutes(fast_ruins))
+print(framesToMinutes(fast_waterfall))
+print(framesToMinutes(fast_snowdin))
+print(framesToMinutes(fast_core))
