@@ -3,7 +3,7 @@ from math import floor
 
 
 # NUMBER OF SIMULATIONS
-simulations = 100000
+simulations = 1
 
 def roundrandom(x): # Simulate Toby's usage of round(random()) in gamemaker
     return round(random()*x)
@@ -13,7 +13,7 @@ def scr_steps(argument0, argument1, argument2): # Remake of the gamemaker code
     populationfactor = (argument2 / (argument2 - kills))
     if populationfactor > 8:
         populationfactor = 8
-    steps = (argument0 + roundrandom(argument1)) * populationfactor
+    steps = (argument0 + round(0.5 * argument1)) * populationfactor
     return floor(steps)+1
 
 # The following two functions calculate the encounters based on their probability
@@ -81,7 +81,7 @@ def dogskip():
 
 #All times are written in frames by default, the following function converts to a more readable value
 
-def framesToMinutes(x):
+def ftm(x):
     seconds = x/30
     minutes = floor(seconds/60)
     seconds = seconds - minutes * 60
@@ -310,41 +310,52 @@ while total_attempts < simulations:
     #
     #
     #
+    SEED = ['Shoes Moldsmall', 'Temmie', 'Woshua Moldbygg']
     kills = 0
     encountereds = []
     waterfall_time = waterfall_start
+    print("Start (enter sgs)", ftm(waterfall_time))
     waterfall_time += sgs_time
+    print("SGS (exit", ftm(waterfall_time))
     waterfall_time += woshua_aaron_walk
+    print("Enter spears 1", ftm(waterfall_time))
     kills += 2 # Woshua and Aaron
     waterfall_time += spears1
-    waterfall_time += punch_card_walk 
+    print("Exit main spears 1", ftm(waterfall_time))
+    waterfall_time += punch_card_walk
+    print("Enter big room",ftm(waterfall_time))
     ##Big Room encounter + steps RNG (with tough glove)
     waterfall_time += scr_steps(360, 30, 18) + tough_glove_moldsmall
+    print("Exit scripted double mold", ftm(waterfall_time))
     kills += 2 # Double Mold
     waterfall_time += shoes_segment
     #BIG ROOM encounter RNG
-    encounter = waterfall_glowing_encounterer()
-    encountereds.append(encounter)
+    encounter = SEED[0]
     if encounter == 'Aaron' or encounter == 'Woshua':
         kills += 1
     else:
         kills += 2
     waterfall_time += encountering_time + encounter_times[encounter]
+    print("Enter onion sans", ftm(waterfall_time))
     waterfall_time += up_to_grind
+    print("Enter Grind room", ftm(waterfall_time))
     kills += 2 # Shyren and Glad Dummy
     # Scripted Temmie
     waterfall_time += scr_steps(60, 20, 18)
-    waterfall_time += encounter_times['Temmie'] + encountering_time 
+    waterfall_time += encounter_times['Temmie'] + encountering_time
+    print("Kills cripted temmie", ftm(waterfall_time))
     # First scripted encounter
     waterfall_time += scr_steps(120, 50, 18)
     kills += 1 # Temmie (need to computer it after this steps)
     encounter = "Sus Mold"
     waterfall_time += encountering_time + encounter_times[encounter]
+    print("Kill scripted sus mold", ftm(waterfall_time))
     kills += 2 # Moldsmall and Moldbygg
     scripted_encounters = 1
     current_room = 'L' # for right, the room you grinded the PREVIOUS encounter
     first_maze = False
     second_maze = False
+    encounters = 0
     while kills < 18:
         waterfall_time += waterfall_transition + encountering_time # Standard time for each encounter
         if kills > 13:
@@ -364,7 +375,7 @@ while total_attempts < simulations:
                         if steps < dark_crystal_steps:
                             steps = dark_crystal_steps
                     else:
-                        steps = scr_steps(120, 50, 18)
+                        steps = scr_steps(60, 20, 18)
         else:
             steps = scr_steps(60, 20, 18)
         waterfall_time += steps
@@ -384,17 +395,19 @@ while total_attempts < simulations:
                     current_room = 'L'
                 else:
                     current_room = 'R'
-            encounter = waterfall_grind()
-            encountereds.append(encounter)
+            encounters += 1
+            encounter = SEED[1]
             if encounter == 'Temmie':
                 kills += 1
             else:
                 kills += 2
             waterfall_time += encounter_times[encounter]
+        print(kills, 'Kills', ftm(waterfall_time))
     waterfall_time += post_grind
+    print("Post Grind", ftm(waterfall_time))
     all_encountereds['Waterfall'] = encountereds
     ruins_time = 0
-    snowdin_time = 0
+    snowdin_time = (21*60+47.3)*30
     total_time = ruins_time + snowdin_time + waterfall_time
     if total_time < desired_treshold:
         successful_attempts += 1
