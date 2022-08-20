@@ -3,7 +3,7 @@ from math import floor
 
 
 # NUMBER OF SIMULATIONS
-simulations = 1000000
+simulations = 100000
 
 def roundrandom(x): # Simulate Toby's usage of round(random()) in gamemaker
     return round(random()*x)
@@ -106,7 +106,7 @@ encounter_times = {
 #
 "Snowdrake": 340,
 "Icecap Jerry": 128,
-"Snowdrake Jerry": 715,
+"Snowdrake Jerry": 691,
     }
 
 # These are the execution times, all adjusted from link's 1:03:38
@@ -133,7 +133,7 @@ snowdin_strat = 3290 # Touch Ruins Door ----- First frame of movement in Snowdin
 savepointinteract = 6 # Savepoint in room with box
 equip_glove = 39 # Equip item + get from box
 snowding_rock_to_dogi = 3037 # From leaving Snowdrake's scripted encounter to entering the dogi room
-dogi_to_greater = 3297 # From leaving first non scripted encoutner to encountering greaterdog
+dogi_to_greater = 3270 # From leaving first non scripted encoutner to encountering greaterdog
 deadly_bridge = 1159 # leaving greater dog to touching snowdin town enter door
 exit_snowdin = 2238 # movement from last encounter to splitting Snowdin)
 
@@ -155,7 +155,7 @@ jerry_kill = 969 # If you need to kill jerry, the extra time taken
 encountering_time = 52 # Time you get notified and start battle
 
 total_attempts = 0 # Keep track of simulation number
-desired_treshold = (22*60+30)*30 # To calculate the probability of the treshold you want, by default I put 10 minutes here
+desired_treshold = (22*60)*30 # To calculate the probability of the treshold you want, by default I put 10 minutes here
 successful_attempts = 0 # Runs that beat the treshold above
 
 
@@ -248,13 +248,13 @@ while total_attempts < simulations:
         if encounter == 'Snowdrake Jerry':
             snowdin_time += encounter_times['Snowdrake Jerry']
             kills += 2
-            if kills == 13:
+            if (kills - 2) == 13:
                 snowdin_time += jerry_kill
                 kills += 1
         elif encounter == 'Icecap Jerry':
             snowdin_time += encounter_times[encounter]
             kills += 1
-            if kills == 14:
+            if (kills - 1) == 14:
                 kills += 1
                 snowdin_time += jerry_kill
     snowdin_time += snowdin_execution
