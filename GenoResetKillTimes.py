@@ -4,7 +4,9 @@ from math import floor
 
 # CONTROL VARIABLE
 # Number of runs
-simulations = 400000
+simulations = 1000000
+
+first_half = 11
 
 #Choose the area:
 #1 = Ruins
@@ -275,7 +277,42 @@ successful_attempts = 0 # Runs that beat the treshold above
 lowest_time = 200*60*30
 highest_time = 0
 
+numbers_kills = {
+12: 0,
+13: 0,
+14: 0,
+15: 0,
+16: 0,
+17: 0,
+18: 0,
+19: 0
+}
+total_kills = {
+1: 0,
+2: 0,
+3: 0,
+4: 0,
+5: 0,
+6: 0,
+7: 0,
+8: 0,
+9: 0,
+10: 0,
+11: 0,
+12: 0,
+13: 0,
+14: 0,
+15: 0,
+16: 0,
+17: 0,
+18: 0,
+19: 0,
+20: 0
+}
+
 def RuinsSimulate(): # Ruins Code
+    local_numbers_kills = {}
+    local_total_kills = {}
     global all_encountereds
     global total_time
     global kills
@@ -283,17 +320,20 @@ def RuinsSimulate(): # Ruins Code
     ruins_time += 4057 # Run Start ---- Unnecessary Long Hallway Exit (regaining movement in the first grindable room)
     encountereds = []
     kills = 0
+    right_side_three_rock = False
     while kills < 20:
-        if kills < 13: # Code for first half
+        if kills < first_half: # Code for first half
             steps = scr_steps(80, 40, 20)
             if kills == 0: #Exception for first encounter because you can get it before reaching end + phone call
                 ruins_time += 28 # Time to mash the first toriel phone call
                 if steps < leaf_pile_steps:
                     steps = leaf_pile_steps
-            elif kills == 11: # Going to the right
+            elif kills == (first_half - 2): # Going to the right
+                if first_half % 2 == 0:
+                    ruins_time += first_half_transition # Extra transition from even number
                 ruins_time += 90 # Time falling into the pit
                 ruins_time += 51 # Time getting up from the pit
-            elif kills == 12: # Going to the right
+            elif kills == (first_half - 1): # Going to the right
                 ruins_time += 31 # Time to mash first phone call in 1 rock room
                 ruins_time += 33 # Time to mash second phone call in 1 rock room
                 ruins_time += 7 # Time to check the sign in 1 rock room
@@ -308,12 +348,15 @@ def RuinsSimulate(): # Ruins Code
             else:
                 ruins_time += (steps + encountering_time + encounter_time + frogskip_count)
             kills += 1
+            
         else: # Code for 2nd half
-            if kills == 13: # Going through the leaf maze
+            if kills == first_half: # Going through the leaf maze
                 ruins_time += 244 # Gaining movement from killing encounter before and gaining movement in leaf maze
+                ruins_time -= second_half_transition # Transition is meaningless for this first one
+            if right_side_three_rock == False and kills > 12: # Going to the ride side
+                right_side_three_rock = True
                 ruins_time += 116 # Time talking with the rock in 3 rock room (before going right)
                 ruins_time += 27 # Time talking with the rock in 3 rock room (after going right)
-                ruins_time -= second_half_transition # Transition is meaningless for this first one
             steps = scr_steps(60, 60, 20)
             encounter = second_half_encounter()
             encountereds.append(encounter)
@@ -334,7 +377,21 @@ def RuinsSimulate(): # Ruins Code
                 frogskip_count = -(frog_skip_save * (frogskip() + frogskip()))
             encounter_time = ruins_encounters[encounter]
             ruins_time += second_half_transition + steps + encountering_time + encounter_time + frogskip_count
+        if kills < 12:
+            local_total_kills[kills] = ruins_time
+        if kills > 11 and kills < 20:
+            local_numbers_kills[kills] = 1
+            local_total_kills[kills] = ruins_time
+        elif kills >= 20:
+            local_total_kills[20] = ruins_time
     ruins_time += 4565 # First frame after killed last monster ----- Touch Toriel Door
+    if ruins_time < desired_treshold:
+        for x in local_total_kills:
+            if local_total_kills[x] > total_kills[x]:
+                total_kills[x] = local_total_kills[x]
+        for x in local_numbers_kills:
+            if local_numbers_kills[x] > numbers_kills[x]:
+                numbers_kills[x] = local_numbers_kills[x]
     all_encountereds['Ruins'] = encountereds
     total_time += ruins_time
     return ruins_time
@@ -585,6 +642,12 @@ while total_attempts < simulations:
     elif total_time > highest_time:
         highest_time = total_time
         highest_seed = all_encountereds
+
+for x in total_kills:
+    if x > 11 and x < 20:
+        print(x, '       ', framesToMinutes(total_kills[x]))
+    else:
+        print(x, '       ', framesToMinutes(total_kills[x]))
     
 # Results
 

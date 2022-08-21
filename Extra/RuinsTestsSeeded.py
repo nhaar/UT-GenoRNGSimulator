@@ -4,7 +4,7 @@ from math import floor
 
 # CONTROL VARIABLE
 # Number of runs
-simulations = 400000
+simulations = 1
 
 #Choose the area:
 #1 = Ruins
@@ -276,11 +276,14 @@ lowest_time = 200*60*30
 highest_time = 0
 
 def RuinsSimulate(): # Ruins Code
+    SEED = ['Whimsun', 'Froggit', 'Whimsun', 'Whimsun', 'Froggit', 'Froggit', 'Froggit', 'Whimsun', 'Whimsun', 'Whimsun', 'Whimsun', 'Whimsun', 'Whimsun', 'Froggit Whimsun', 'Froggit Whimsun', 'Froggit Whimsun', 'Froggit Whimsun', '1x Moldsmall']
+    SEEDING = 0
     global all_encountereds
     global total_time
     global kills
     ruins_time = 0
     ruins_time += 4057 # Run Start ---- Unnecessary Long Hallway Exit (regaining movement in the first grindable room)
+    print("Movement in Leaf Pile", framesToMinutes(ruins_time))
     encountereds = []
     kills = 0
     while kills < 20:
@@ -298,6 +301,7 @@ def RuinsSimulate(): # Ruins Code
                 ruins_time += 33 # Time to mash second phone call in 1 rock room
                 ruins_time += 7 # Time to check the sign in 1 rock room
             encounter = first_half_encounter()
+            encounter = SEED[SEEDING]
             encountereds.append(encounter)
             frogskip_count = 0
             if encounter == "Froggit":
@@ -307,6 +311,7 @@ def RuinsSimulate(): # Ruins Code
                 ruins_time += (first_half_transition + steps + encountering_time + encounter_time + frogskip_count)
             else:
                 ruins_time += (steps + encountering_time + encounter_time + frogskip_count)
+            print('Killed', encounter,'to get', kills+1, framesToMinutes(ruins_time))
             kills += 1
         else: # Code for 2nd half
             if kills == 13: # Going through the leaf maze
@@ -316,6 +321,7 @@ def RuinsSimulate(): # Ruins Code
                 ruins_time -= second_half_transition # Transition is meaningless for this first one
             steps = scr_steps(60, 60, 20)
             encounter = second_half_encounter()
+            encounter = SEED[SEEDING]
             encountereds.append(encounter)
             if encounter == "2x Moldsmall" or encounter == "2x Froggit" or encounter == "Froggit Whimsun":
                 if kills == 19:
@@ -334,7 +340,10 @@ def RuinsSimulate(): # Ruins Code
                 frogskip_count = -(frog_skip_save * (frogskip() + frogskip()))
             encounter_time = ruins_encounters[encounter]
             ruins_time += second_half_transition + steps + encountering_time + encounter_time + frogskip_count
+            print('Killed', encounter,'to get', kills+1, framesToMinutes(ruins_time))
+        SEEDING += 1
     ruins_time += 4565 # First frame after killed last monster ----- Touch Toriel Door
+    print('Ruins Finish', framesToMinutes(ruins_time))
     all_encountereds['Ruins'] = encountereds
     total_time += ruins_time
     return ruins_time

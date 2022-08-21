@@ -4,7 +4,7 @@ from math import floor
 
 # CONTROL VARIABLE
 # Number of runs
-simulations = 400000
+simulations = 100000
 
 #Choose the area:
 #1 = Ruins
@@ -111,6 +111,13 @@ def dogskip():
     else:
         return 0
 
+def killedfroggit():
+    probability = random()
+    if probability < 8/9:
+        return 0
+    else:
+        return 1
+
 #All times are written in frames by default, the following function converts to a more readable value
 
 def framesToMinutes(x):
@@ -134,28 +141,24 @@ at_19 = 'at 19'
 # - First frame in battle
 # - First frame outside battle
 
-ruins_encounters = {
+encounter_times = {
 #
 # RUINS ENCOUNTERS
 #
 #
-"Froggit": 346,
-"Whimsun": 103 ,
-"1x Moldsmall": 375,
-"2x Moldsmall": 845,
-"3x Moldsmall": 1326,
-"Froggit Whimsun": 537,
-"2x Froggit": 782,
-# --------- Separating normal ones from "fleeing" ones
-"2x Moldsmall" + at_19: 522,
-"3x Moldsmall" + at_18: 1000,
-"3x Moldsmall" + at_19: 522,
-"2x Froggit" + at_19: 470,
-"Froggit Whimsun" + at_19: 260
-}
-
-
-encounter_times = {
+"Froggit": 368, #link's run
+"Whimsun": 104 ,#link's run
+"1x Moldsmall": 369, #TGH's 1:05:37
+"2x Moldsmall": 840, #Approximation
+"3x Moldsmall": 1319, # link's run
+"Froggit Whimsun": 520, # link's run
+"2x Froggit": 747, # From link in this race https://www.twitch.tv/videos/1565078950?t=00h11m13s
+# --------- Separating normal ones from "at x" ones
+"2x Moldsmall" + at_19: 630, # Approximation
+"3x Moldsmall" + at_18: 1080, # Approximation
+"3x Moldsmall" + at_19: 630, # Approximation
+"2x Froggit" + at_19: 630, # Approximation
+"Froggit Whimsun" + at_19: 270, # Approximation
 #
 # SNOWDIN ENCOUNTERS
 #
@@ -194,6 +197,8 @@ encounter_times = {
 # RUINS TIMES
 
 start_to_unnecessary = 4033 # Run Start ---- Unnecessary Long Hallway Exit (regaining movement in the following room)
+time_killing_first_froggit = 158 # Killing FROGGIT time: 2 second timesave
+flee = 98
 toriel_phone_call = 36 # Time to mash the first toriel phone call
 falling_pit = 89 # Time falling into the pit
 getting_up_pit = 50 # Time getting up from the pit
@@ -204,7 +209,9 @@ talk_rock_part_1 = 112 # Time talking with the rock in 3 rock room (before going
 talk_rock_part_2 = 26 # Time talking with the rock in 3 rock room (after going right)
 third_half = 4590 # First frame after killed last monster ----- Touch Toriel Door
 
-ruins_execution = 0
+ruins_execution = start_to_unnecessary + toriel_phone_call + falling_pit + getting_up_pit + one_rock_first_phone + \
+                      one_rock_second_phone + check_sign + talk_rock_part_1 + talk_rock_part_2 + third_half \
+                      - time_killing_first_froggit + flee
 
 # SNOWDIWN TIMES
 
@@ -243,22 +250,19 @@ core_end = 874
 
 # Transition times are a measurement of: Room transition + encountering animation
 
-first_half_transition = 9
-second_half_transition = 18
+first_half_transition = 70
+second_half_transition = 70
 snowdin_right_side_transition = 31
 snowdin_left_side_transition = 26
 waterfall_transition = 10
 core_transition = 20
 
-# STEPS FOR WALKING ROOMS
-leaf_pile_steps = 97
 
-# MISCELANEOUS
-frog_skip_save = 90 # How many frames running into the frog saves, comapared it from link's 1:03:38
+frog_skip_save = 91 # How many frames running into the frog saves, comapared it from link's 1:03:38
 greater_dog_fight = 483 # The fight with no dog skips
 dog_skip_save = 74 #Greater Dog's attack time save
 jerry_kill = 969 # If you need to kill jerry, the extra time taken
-encountering_time = 50 # Time you get notified and start battle
+encountering_time = 52 # Time you get notified and start battle
 
 double_flee = 10 * 30
 triple_flee_double = 10 * 30
@@ -279,41 +283,36 @@ def RuinsSimulate(): # Ruins Code
     global all_encountereds
     global total_time
     global kills
-    ruins_time = 0
-    ruins_time += 4057 # Run Start ---- Unnecessary Long Hallway Exit (regaining movement in the first grindable room)
+    lv = 1
+    exp = 0
     encountereds = []
+    ruins_time = 0
     kills = 0
     while kills < 20:
-        if kills < 13: # Code for first half
+        if exp > 9:
+            lv = 2
+        if kills < 9: # Code for the first half
             steps = scr_steps(80, 40, 20)
-            if kills == 0: #Exception for first encounter because you can get it before reaching end + phone call
-                ruins_time += 28 # Time to mash the first toriel phone call
-                if steps < leaf_pile_steps:
-                    steps = leaf_pile_steps
-            elif kills == 11: # Going to the right
-                ruins_time += 90 # Time falling into the pit
-                ruins_time += 51 # Time getting up from the pit
-            elif kills == 12: # Going to the right
-                ruins_time += 31 # Time to mash first phone call in 1 rock room
-                ruins_time += 33 # Time to mash second phone call in 1 rock room
-                ruins_time += 7 # Time to check the sign in 1 rock room
+            if kills == 0 and steps > 97: #Exception for first encounter because you can get it before reaching end
+                steps = 97
             encounter = first_half_encounter()
             encountereds.append(encounter)
             frogskip_count = 0
             if encounter == "Froggit":
+                exp += 4
                 frogskip_count = -(frog_skip_save * frogskip())
-            encounter_time = ruins_encounters[encounter]
+                if lv == 1:
+                    if killedfroggit() == 0:
+                        frogskip_count -= frog_skip_save * frogskip() - 6*30
+            elif encounter == "Whimsun":
+                exp += 3
+            encounter_time = encounter_times[encounter]
             if kills != 0: #First kill has no transition, basically
-                ruins_time += (first_half_transition + steps + encountering_time + encounter_time + frogskip_count)
+                ruins_time += (first_half_transition + encounter_time + steps + frogskip_count)
             else:
-                ruins_time += (steps + encountering_time + encounter_time + frogskip_count)
+                ruins_time += (encounter_time + steps + frogskip_count)
             kills += 1
         else: # Code for 2nd half
-            if kills == 13: # Going through the leaf maze
-                ruins_time += 244 # Gaining movement from killing encounter before and gaining movement in leaf maze
-                ruins_time += 116 # Time talking with the rock in 3 rock room (before going right)
-                ruins_time += 27 # Time talking with the rock in 3 rock room (after going right)
-                ruins_time -= second_half_transition # Transition is meaningless for this first one
             steps = scr_steps(60, 60, 20)
             encounter = second_half_encounter()
             encountereds.append(encounter)
@@ -332,9 +331,9 @@ def RuinsSimulate(): # Ruins Code
             frogskip_count = 0
             if encounter == "Froggit Whimsun" or encounter == "2x Froggit":
                 frogskip_count = -(frog_skip_save * (frogskip() + frogskip()))
-            encounter_time = ruins_encounters[encounter]
-            ruins_time += second_half_transition + steps + encountering_time + encounter_time + frogskip_count
-    ruins_time += 4565 # First frame after killed last monster ----- Touch Toriel Door
+            encounter_time = encounter_times[encounter]
+            ruins_time += second_half_transition + encounter_time + steps + frogskip_count
+    ruins_time += ruins_execution
     all_encountereds['Ruins'] = encountereds
     total_time += ruins_time
     return ruins_time
