@@ -2,8 +2,23 @@ from random import random
 from math import floor
 
 
-# NUMBER OF SIMULATIONS
+# CONTROL VARIABLE
+# Number of runs
 simulations = 100000
+
+#Choose the area:
+#1 = Ruins
+#2 = Snowdin
+#3 = Waterfall
+#4 = Core
+#5 = Full Game
+
+area = 1
+
+#Choose the percentage treshold (frames)
+
+desired_treshold = (10*60)*30
+
 
 def roundrandom(x): # Simulate Toby's usage of round(random()) in gamemaker
     return round(random()*x)
@@ -16,9 +31,9 @@ def scr_steps(argument0, argument1, argument2): # Remake of the gamemaker code
     steps = (argument0 + roundrandom(argument1)) * populationfactor
     return floor(steps)+1
 
-# The following two functions calculate the encounters based on their probability
+# The following functions calculate the encounters based on their probability
 
-def first_half_encounter():
+def first_half_encounter(): # Ruins
     probability = random()
     if probability > 0.5:
         return "Froggit"
@@ -247,7 +262,6 @@ mushroom_maze_steps = 348
 dark_crystal_steps = 642
 
 total_attempts = 0 # Keep track of simulation number
-desired_treshold = ((1*60+4)*60)*30 # To calculate the probability of the treshold you want, by default I put 10 minutes here
 successful_attempts = 0 # Runs that beat the treshold above
 
 
@@ -255,15 +269,11 @@ successful_attempts = 0 # Runs that beat the treshold above
 lowest_time = 200*60*30
 highest_time = 0
 
-while total_attempts < simulations:
-    encountereds = [] # Keep track of the encounters this seed
-    total_time = 0 # This will be the time for this simulation
-    if total_attempts % 1000 == 0: # Printing out the progress
-        print(total_attempts)
-    total_attempts += 1
-    # RUINS CODE
-    #
-    #
+def RuinsSimulate(): # Ruins Code
+    global all_encountereds
+    global total_time
+    global kills
+    encountereds = []
     ruins_time = 0
     kills = 0
     while kills < 20:
@@ -304,11 +314,14 @@ while total_attempts < simulations:
             encounter_time = encounter_times[encounter]
             ruins_time += second_half_transition + encounter_time + steps + frogskip_count
     ruins_time += ruins_execution
-    all_encountereds = {}
     all_encountereds['Ruins'] = encountereds
-    # SNOWDIN CODE
-    #
-    #
+    total_time += ruins_time
+    return ruins_time
+
+def SnowdinSimulate(): #Snowdin Code
+    global all_encountereds
+    global total_time
+    global kills
     encountereds = []
     kills = 0
     snowdin_time = 0
@@ -351,11 +364,12 @@ while total_attempts < simulations:
                 snowdin_time += jerry_kill
     snowdin_time += snowdin_execution
     all_encountereds["Snowdin"] = encountereds
-    #
-    # WATERFALL CODE
-    #
-    #
-    #
+    total_time += snowdin_time
+
+def WaterfallSimulate(): # Waterfall Code
+    global all_encountereds
+    global total_time
+    global kills
     kills = 0
     encountereds = []
     waterfall_time = waterfall_start
@@ -441,12 +455,16 @@ while total_attempts < simulations:
                 waterfall_time -= double_flee
     waterfall_time += post_grind
     all_encountereds['Waterfall'] = encountereds
-    #
-    hotland_time = 7161 # touching leaving undyne door  --- touch leaving muffet door
-    #
-    # CORE CODE
-    #
-    #
+    total_time += waterfall_time
+
+def HotlandSimulate():
+    global total_time
+    total_time += 7161 # touching leaving undyne door  --- touch leaving muffet door
+
+def CoreSimulate():
+    global total_time
+    global all_encountereds
+    global kills
     core_time = 0
     kills = 5
     core_time += core_start
@@ -509,20 +527,40 @@ while total_attempts < simulations:
                     core_time += exit_warriors_path_nobody_came
     core_time += core_end
     all_encountereds["Core"] = encountereds
-    #
+    total_time += core_time
+
+def EndGameSimulate():
+    global total_time
     new_home_time = 20473 # Exit mettaton room (touch door) --- exit sans hallway
     chara_time = 5004 # Exit sans hallway -- End run
-    #
-    total_time = ruins_time + snowdin_time + waterfall_time + hotland_time + core_time +new_home_time + chara_time
+    total_time += new_home_time + chara_time # touching leaving undyne door  --- touch leaving muffet door
+
+while total_attempts < simulations:
+    all_encountereds = {} # Keep track of the encounters this seed
+    total_time = 0 # This will be the time for this simulation
+    if total_attempts % 10000 == 0: # Printing out the progress
+        print(total_attempts)
+    total_attempts += 1
+    if area == 1:
+        RuinsSimulate()
+    elif area == 2:
+        SnowdinSimulate()
+    elif area == 3:
+        WaterfallSimulate()
+    elif area == 4:
+        CoreSimulate()
+    elif area == 5:
+        RuinsSimulate()
+        SnowdinSimulate()
+        WaterfallSimulate()
+        HotlandSimulate()
+        CoreSimulate()
+        EndGameSimulate()
     if total_time < desired_treshold:
         successful_attempts += 1
     if total_time < lowest_time:
         lowest_time = total_time
         lowest_seed = all_encountereds
-        fast_ruins = ruins_time
-        fast_waterfall = waterfall_time
-        fast_snowdin = snowdin_time
-        fast_core = core_time
     elif total_time > highest_time:
         highest_time = total_time
         highest_seed = all_encountereds
@@ -535,17 +573,23 @@ print('Slowest Time:', framesToMinutes(highest_time))
 print('Percentage of runs below', framesToMinutes(desired_treshold),'=', str((successful_attempts/total_attempts) * 100) + "%")
 for x in [lowest_seed, highest_seed]:
     if x == lowest_seed:
-        print('Encounters for the fastest time\n')
+        print('\nEncounters for the fastest time\n')
     else:
-        print('Encounters for the slowest time\n')
-    for y in ['Ruins', 'Snowdin', 'Waterfall', 'Core']:
+        print('\nEncounters for the slowest time\n')
+    if area == 1:
+        areas = ['Ruins']
+    elif area == 2:
+        areas = ['Snowdin']
+    elif area == 3:
+        alreas = ['Waterfall']
+    elif area == 4:
+        areas = ['Core']
+    elif area == 5:
+        areas = ['Ruins', 'Snowdin', 'Waterfall', 'Core']
+    for y in areas:
         these_encounters = x[y]
         string_encounters = ''
         for z in these_encounters:
             string_encounters += z + ', '
         string_encounters = string_encounters[:-2]
         print(y, '        ', string_encounters)
-print(framesToMinutes(fast_ruins))
-print(framesToMinutes(fast_waterfall))
-print(framesToMinutes(fast_snowdin))
-print(framesToMinutes(fast_core))
