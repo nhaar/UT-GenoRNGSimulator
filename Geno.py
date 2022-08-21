@@ -472,7 +472,7 @@ while total_attempts < simulations:
                     encounter = "Final Froggit Astigmatism"
                     kills = 12
                 elif kills == 12:
-                    encounter == "Knight Knight Madjick"
+                    encounter = "Knight Knight Madjick"
                     kills = 14
                 core_time += core_transition + steps + encountering_time + encounter_times[encounter]
         elif kills < 32 or kills == 39:
