@@ -291,16 +291,16 @@ def RuinsSimulate(): # Ruins Code
     while kills < 20:
         if exp >= 30:
             lv = 3
-        if kills < 13: # Code for first half
+        if kills < 9: # Code for first half
             steps = scr_steps(80, 40, 20)
             if kills == 0: #Exception for first encounter because you can get it before reaching end + phone call
                 ruins_time += 28 # Time to mash the first toriel phone call
                 if steps < leaf_pile_steps:
                     steps = leaf_pile_steps
-            elif kills == 11: # Going to the right
+            elif kills == 7: # Going to the right
                 ruins_time += 90 # Time falling into the pit
                 ruins_time += 50 # Time getting up from the pit
-            elif kills == 12: # Going to the right
+            elif kills == 8: # Going to the right
                 ruins_time += 31 # Time to mash first phone call in 1 rock room
                 ruins_time += 33 # Time to mash second phone call in 1 rock room
                 ruins_time += 5 # Time to check the sign in 1 rock room
