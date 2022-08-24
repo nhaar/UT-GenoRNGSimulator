@@ -142,20 +142,20 @@ ruins_encounters = {
 # RUINS ENCOUNTERS
 #
 #
-"Froggit" + "LV2": 343,
+"Froggit" + "LV2": 346,
 "Froggit" + "LV3": 328,
-"Whimsun": 101,
-"1x Moldsmall": 368,
+"Whimsun": 103 ,
+"1x Moldsmall": 375,
 "2x Moldsmall": 845,
 "3x Moldsmall": 1326,
-"Froggit Whimsun": 527,
-"2x Froggit": 765,
+"Froggit Whimsun": 537,
+"2x Froggit": 782,
 # --------- Separating normal ones from "fleeing" ones
-"2x Moldsmall" + at_19: 518,
-"3x Moldsmall" + at_18: 998,
-"3x Moldsmall" + at_19: 516,
-"2x Froggit" + at_19: 486,
-"Froggit Whimsun" + at_19: 248
+"2x Moldsmall" + at_19: 522,
+"3x Moldsmall" + at_18: 1000,
+"3x Moldsmall" + at_19: 522,
+"2x Froggit" + at_19: 470,
+"Froggit Whimsun" + at_19: 260
 }
 
 
@@ -278,10 +278,6 @@ successful_attempts = 0 # Runs that beat the treshold above
 lowest_time = 200*60*30
 highest_time = 0
 
-distribution = {'9-9:40': 0, '9:40-50': 0, '9:50-10:00': 0, '10:00-10': 0, '10:10-20': 0, '10:20-30': 0, '10:30-40': 0, '10:40-50': 0, '10:50-11:00':0, '11:00-': 0}
-
-results = []
-
 def RuinsSimulate(): # Ruins Code
     global all_encountereds
     global total_time
@@ -292,20 +288,19 @@ def RuinsSimulate(): # Ruins Code
     kills = 0
     lv = 2
     exp = 10
-    first_half = 6
     while kills < 20:
         if exp >= 30:
             lv = 3
-        if kills < first_half: # Code for first half
+        if kills < 11: # Code for first half
             steps = scr_steps(80, 40, 20)
             if kills == 0: #Exception for first encounter because you can get it before reaching end + phone call
                 ruins_time += 28 # Time to mash the first toriel phone call
                 if steps < leaf_pile_steps:
                     steps = leaf_pile_steps
-            elif kills == (first_half -2): # Going to the right
+            elif kills == 9: # Going to the right
                 ruins_time += 90 # Time falling into the pit
                 ruins_time += 50 # Time getting up from the pit
-            elif kills == (first_half-1): # Going to the right
+            elif kills == 10: # Going to the right
                 ruins_time += 31 # Time to mash first phone call in 1 rock room
                 ruins_time += 33 # Time to mash second phone call in 1 rock room
                 ruins_time += 5 # Time to check the sign in 1 rock room
@@ -328,7 +323,7 @@ def RuinsSimulate(): # Ruins Code
                 ruins_time += (steps + encountering_time() + encounter_time + frogskip_count)
             kills += 1
         else: # Code for 2nd half
-            if kills == first_half: # Going through the leaf maze
+            if kills == 13: # Going through the leaf maze
                 ruins_time += 244 # Gaining movement from killing encounter before and gaining movement in leaf maze
                 ruins_time += 116 # Time talking with the rock in 3 rock room (before going right)
                 ruins_time += 27 # Time talking with the rock in 3 rock room (after going right)
@@ -358,8 +353,6 @@ def RuinsSimulate(): # Ruins Code
             ruins_time += second_half_transition + steps + encountering_time() + encounter_time + frogskip_count
     ruins_time += 4565 # First frame after killed last monster ----- Touch Toriel Door
     all_encountereds['Ruins'] = encountereds
-    if first_half % 2 == 0:
-        ruins_time += 18
     total_time += ruins_time
     return ruins_time
 
@@ -601,27 +594,6 @@ while total_attempts < simulations:
         HotlandSimulate()
         CoreSimulate()
         EndGameSimulate()
-    if total_time < (9*60+40)*30:
-        distribution['9-9:40'] += 1
-    elif total_time < (9*60+50)*30:
-        distribution['9:40-50'] += 1
-    elif total_time < (10*60)*30:
-        distribution['9:50-10:00'] += 1
-    elif total_time < (10*60+10)*30:
-        distribution['10:00-10'] += 1
-    elif total_time < (10*60+20)*30:
-        distribution['10:10-20'] += 1
-    elif total_time < (10*60+30)*30:
-        distribution['10:20-30'] += 1
-    elif total_time < (10*60+40)*30:
-        distribution['10:30-40'] += 1
-    elif total_time < (10*60+50)*30:
-        distribution['10:40-50'] += 1
-    elif total_time < (11*60)*30:
-        distribution['10:50-11:00'] += 1
-    else:
-        distribution['11:00-'] += 1
-    results.append(total_time)
     if total_time < desired_treshold:
         successful_attempts += 1
     if total_time < lowest_time:
@@ -630,14 +602,6 @@ while total_attempts < simulations:
     elif total_time > highest_time:
         highest_time = total_time
         highest_seed = all_encountereds
-
-import statistics
-
-print('Average', framesToMinutes(sum(results)/simulations))
-print('Standard Deviation', framesToMinutes(statistics.pstdev(results)))
-
-for x in distribution:
-    print(x, distribution[x]/simulations)
     
 # Results
 

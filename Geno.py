@@ -1,5 +1,6 @@
 from random import random
 from math import floor
+import statistics
 
 
 # CONTROL VARIABLE
@@ -19,6 +20,7 @@ area = 1
 
 desired_treshold = (10*60)*30
 
+results = []
 
 def roundrandom(x): # Simulate Toby's usage of round(random()) in gamemaker
     return round(random()*x)
@@ -602,6 +604,11 @@ while total_attempts < simulations:
     elif total_time > highest_time:
         highest_time = total_time
         highest_seed = all_encountereds
+    results.append(total_time)
+
+
+print('Average', framesToMinutes(sum(results)/simulations))
+print('Standard Deviation', framesToMinutes(statistics.pstdev(results)))
     
 # Results
 
