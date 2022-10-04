@@ -37,7 +37,26 @@ second_half = alle.copy()
 alle = []
 
 # this baseline is just a bunch of fixed timings, it also includes the first half things like transitioning and steps, since those are the same everytime (with average values)
-baseline = 4057 + 28 + 90 + 50 + 31 + 33 + 5 + 13 * (47 + 2.5 + 9) + 101 + 106 + 111.5 + 118.5 + 126 + 134 + 143.5 + 154.5 + 167.5 + 182.5 + 201 + 222.5 + 251 + 244 + 116 + 27 - 18 + 4565
+baseline = 0
+baseline += 4057
+baseline += 28
+baseline += 90
+baseline += 50
+baseline += 31
+baseline += 33
+baseline += 5
+baseline += 244
+baseline += 116
+baseline += 27
+baseline += 4565
+baseline -= 9 + 18
+
+i = 0 # kills simulator
+for x in range(1,14):
+    baseline += scr_steps(80,40,20,i)
+    baseline += 9 + 47 + 2.5
+    print(scr_steps(80,40,20,i))
+    i += 1
 
 #this times one is important since it pertains to each encounter's timing, frog skips are considered in average (90 * 0.405)
 times = {"F": 306.55, "W": 101, "1M": 368, "2M": 845, "3M": 1326, "1F": 527-72.9, "2F": 765-72.9, "2MAT19": 518, "3MAT19": 516, "1FAT19": 248-36.45, "2FAT19": 486-36.45, "3MAT18": 998}

@@ -5,7 +5,7 @@ import statistics
 
 # CONTROL VARIABLE
 # Number of runs
-simulations = 1000000
+simulations = 1e6
 
 #Choose the area:
 #1 = Ruins
@@ -18,7 +18,12 @@ area = 1
 
 #Choose the percentage treshold (frames)
 
-desired_treshold = (10*60)*30
+desired_treshold = (10 \
+                    # minutes
+                   *60 + \
+                   00 \
+                   # Seconds
+                  )*30
 
 results = []
 
@@ -195,7 +200,7 @@ encounter_times = {
 "Astigmatism": 150
     }
 
-# These are the execution times, all adjusted from link's 1:03:38
+# These are the execution times
 
 # RUINS TIMES
 
@@ -319,10 +324,9 @@ def RuinsSimulate(): # Ruins Code
             else:
                 exp += 3
             encounter_time = ruins_encounters[encounter]
-            if kills != 0: #First kill has no transition, basically
-                ruins_time += (first_half_transition + steps + encountering_time() + encounter_time + frogskip_count)
-            else:
-                ruins_time += (steps + encountering_time() + encounter_time + frogskip_count)
+            ruins_time += (first_half_transition + steps + encountering_time() + encounter_time + frogskip_count)
+            if kills == 0:#First kill has no transition, basically
+                ruins_time -= first_half_transition
             kills += 1
         else: # Code for 2nd half
             if kills == 13: # Going through the leaf maze
@@ -608,7 +612,7 @@ while total_attempts < simulations:
 
 
 print('Average', framesToMinutes(sum(results)/simulations))
-print('Standard Deviation', framesToMinutes(statistics.pstdev(results)))
+#print('Standard Deviation', framesToMinutes(statistics.pstdev(results)))
     
 # Results
 
